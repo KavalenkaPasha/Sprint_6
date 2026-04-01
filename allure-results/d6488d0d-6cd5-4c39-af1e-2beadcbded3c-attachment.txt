@@ -1,0 +1,5 @@
+/bin/sh: 1: firefox: not found
+/bin/sh: 1: firefox: not found
+/bin/sh: 1: firefox: not found
+/bin/sh: 1: firefox: not found
+/bin/sh: 1: firefox: not found
