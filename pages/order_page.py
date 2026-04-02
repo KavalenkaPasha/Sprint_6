@@ -2,20 +2,29 @@ from __future__ import annotations
 
 import allure
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.wait import WebDriverWait
 
 from pages.base_page import BasePage
 
 
 class OrderPage(BasePage):
-    STEP_ONE_HEADER = (By.XPATH, "//div[contains(@class,'Order_Header') and normalize-space()='Для кого самокат']")
-    STEP_TWO_HEADER = (By.XPATH, "//div[contains(@class,'Order_Header') and normalize-space()='Про аренду']")
+    STEP_ONE_HEADER = (
+        By.XPATH,
+        "//div[contains(@class,'Order_Header') and normalize-space()='Для кого самокат']",
+    )
+    STEP_TWO_HEADER = (
+        By.XPATH,
+        "//div[contains(@class,'Order_Header') and normalize-space()='Про аренду']",
+    )
 
     FIELD_FIRST_NAME = (By.XPATH, "//input[@placeholder='* Имя']")
     FIELD_LAST_NAME = (By.XPATH, "//input[@placeholder='* Фамилия']")
     FIELD_ADDRESS = (By.XPATH, "//input[@placeholder='* Адрес: куда привезти заказ']")
     FIELD_METRO = (By.XPATH, "//input[@placeholder='* Станция метро']")
-    FIELD_PHONE = (By.XPATH, "//input[@placeholder='* Телефон: на него позвонит курьер']")
+    FIELD_PHONE = (
+        By.XPATH,
+        "//input[@placeholder='* Телефон: на него позвонит курьер']",
+    )
     BUTTON_NEXT = (By.XPATH, "//button[normalize-space()='Далее']")
 
     FIELD_DATE = (By.XPATH, "//input[@placeholder='* Когда привезти самокат']")
@@ -45,7 +54,10 @@ class OrderPage(BasePage):
 
     @staticmethod
     def rental_period_option(value: str) -> tuple[str, str]:
-        return By.XPATH, f"//div[contains(@class,'Dropdown-option') and normalize-space()='{value}']"
+        return (
+            By.XPATH,
+            f"//div[contains(@class,'Dropdown-option') and normalize-space()='{value}']",
+        )
 
     @staticmethod
     def metro_option(value: str) -> tuple[str, str]:
@@ -115,7 +127,13 @@ class OrderPage(BasePage):
     @allure.step("Выбрать цвет самоката: {value}")
     def set_color(self, value: str) -> OrderPage:
         normalized = value.lower().strip()
-        color_locator = self.COLOR_BLACK if normalized == 'black' else self.COLOR_GREY
+        if normalized == "black":
+            color_locator = self.COLOR_BLACK
+        elif normalized == "grey":
+            color_locator = self.COLOR_GREY
+        else:
+            raise ValueError(f"Unsupported color: {value}")
+
         self.click(color_locator)
         return self
 
@@ -142,7 +160,14 @@ class OrderPage(BasePage):
         return self.get_text(self.SUCCESS_MODAL)
 
     def get_order_number(self) -> str:
-        return self.extract_order_number(self.get_text(self.SUCCESS_ORDER_NUMBER))
+        def _order_number_is_ready(driver):
+            text = driver.find_element(*self.SUCCESS_ORDER_NUMBER).text
+            match = self.ORDER_NUMBER_PATTERN.search(text)
+            return match.group(1) if match else False
+
+        return WebDriverWait(self.driver, self.DEFAULT_TIMEOUT).until(
+            _order_number_is_ready
+        )
 
     def is_status_button_visible(self) -> bool:
         self.wait_visible(self.SUCCESS_TRACK_BUTTON)

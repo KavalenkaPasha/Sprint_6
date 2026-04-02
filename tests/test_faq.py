@@ -26,8 +26,9 @@ class TestFaq:
         3. Прочитать текст раскрывшегося ответа.
         4. Сравнить с ожидаемым значением (без учёта лишних пробелов).
         """
-        with allure.step("Открыть главную страницу"):
-            main_page = MainPage(driver).open_main_page()
+        with allure.step("Открыть главную страницу"): 
+            main_page = MainPage(driver)
+            main_page.open_main_page()
 
         with allure.step(f"Кликнуть на вопрос с индексом {question_index}"):
             main_page.open_faq_item(question_index)

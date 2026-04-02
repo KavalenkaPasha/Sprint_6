@@ -14,7 +14,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from webdriver_manager.firefox import GeckoDriverManager
-
+from selenium.webdriver.remote.webdriver import WebDriver
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +27,15 @@ def firefox_options(pytestconfig):
     )
     if headless_enabled:
         options.add_argument("--headless")
+
+    firefox_binary = (
+        os.getenv("FIREFOX_BINARY")
+        or shutil.which("firefox")
+        or shutil.which("firefox-esr")
+    )
+    if firefox_binary:
+        options.binary_location = firefox_binary
+
     options.set_preference("dom.webnotifications.enabled", False)
     return options
 
@@ -50,12 +59,34 @@ def _kill_browser_processes():
 
 @pytest.fixture(scope="function")
 def driver(firefox_options):
+    _kill_browser_processes()
 
-    try:
-        browser = webdriver.Firefox(options=firefox_options)
-    except WebDriverException:
-        service = Service(GeckoDriverManager().install())
-        browser = webdriver.Firefox(service=service, options=firefox_options)
+    browser: WebDriver | None = None
+    startup_errors: list[str] = []
+
+    for attempt in range(2):
+        try:
+            browser = webdriver.Firefox(options=firefox_options)
+            break
+        except WebDriverException as exc:
+            startup_errors.append(str(exc))
+            _kill_browser_processes()
+            try:
+                geckodriver_path = shutil.which("geckodriver") or GeckoDriverManager().install()
+                service = Service(geckodriver_path)
+                browser = webdriver.Firefox(service=service, options=firefox_options)
+                break
+            except Exception as fallback_exc:
+                startup_errors.append(str(fallback_exc))
+                _kill_browser_processes()
+                if attempt == 1:
+                    raise RuntimeError(
+                        "Не удалось запустить Firefox WebDriver. "
+                        f"Причины: {' | '.join(startup_errors)}"
+                    ) from fallback_exc
+
+    if browser is None:
+        raise RuntimeError("Browser not initialized")
 
     browser.set_window_size(1440, 1200)
     browser.set_page_load_timeout(40)
@@ -67,12 +98,12 @@ def driver(firefox_options):
             browser.switch_to.window(browser.window_handles[-1])
             browser.close()
         browser.switch_to.window(browser.window_handles[0])
-    except WebDriverException as exc:
+    except Exception as exc:
         logger.exception("Ошибка при закрытии вкладок браузера: %s", exc)
     finally:
         try:
             browser.quit()
-        except WebDriverException as exc:
+        except Exception as exc:
             logger.exception("Ошибка при завершении сессии браузера: %s", exc)
         _kill_browser_processes()
 

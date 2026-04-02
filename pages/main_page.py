@@ -33,13 +33,14 @@ class MainPage(BasePage):
         return self
 
     @allure.step("Нажать кнопку заказа: {entry_point}")
-    def click_order_button(self, entry_point: OrderEntryPoint):
+    def click_order_button(self, entry_point: OrderEntryPoint) -> OrderPage:
         from pages.order_page import OrderPage
 
         if entry_point is OrderEntryPoint.TOP:
             self.click(self.ORDER_BUTTON_TOP)
         else:
             self.click(self.ORDER_BUTTON_BOTTOM, scroll=True)
+
         order_page = OrderPage(self.driver)
         order_page.wait_until_loaded()
         return order_page

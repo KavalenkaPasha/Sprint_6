@@ -1,6 +1,6 @@
 # Sprint_6 — Автотесты для Яндекс.Самокат
 
-Автотесты на `pytest + Selenium + Firefox` для учебного сервиса **Яндекс.Самокат**
+Автотесты на `pytest + Selenium + Firefox` для сервиса "Яндекс.Самокат"
 (https://qa-scooter.praktikum-services.ru/).
 
 ---
@@ -40,24 +40,12 @@ Sprint_6/
 
 ---
 
-## Стек технологий
-
-- **Python 3.10+**
-- **pytest** — фреймворк для тестов
-- **Selenium 4** — управление браузером
-- **Mozilla Firefox** + **geckodriver** (через webdriver-manager)
-- **Allure** — генерация красивых отчётов
-- **Faker** — генерация реалистичных и частично детерминированных тестовых данных
-
----
-
 ## Установка и запуск
 
 ### 1. Создать виртуальное окружение
 
 ```bash
 python -m venv venv
-source venv/bin/activate        # Linux / macOS
 # venv\Scripts\activate         # Windows
 ```
 
@@ -66,9 +54,6 @@ source venv/bin/activate        # Linux / macOS
 ```bash
 pip install -r requirements.txt
 ```
-
-> **Требования**: Mozilla Firefox должен быть установлен.  
-> `geckodriver` скачивается автоматически через `webdriver-manager`.
 
 ### 3. Запустить тесты
 
@@ -96,35 +81,3 @@ allure serve allure-results
 allure generate allure-results -o allure-report --clean
 allure open allure-report
 ```
-
----
-
-## Параметризация
-
-### FAQ — 8 параметров
-
-```python
-@pytest.mark.parametrize("question_index, expected_answer", FAQ_DATA)
-```
-
-Один тест-шаблон × 8 элементов `FAQ_DATA` = **8 тестов**.
-
-### Заказ — 2×2 параметры
-
-```python
-@pytest.mark.parametrize("entry_point", ORDER_ENTRY_POINTS)          # TOP, BOTTOM
-@pytest.mark.parametrize("order_case_id, order_case", ORDER_CASES)  # 2 Faker-сценария
-```
-
-Декартово произведение: 2 × 2 = **4 теста**.
-
-Для заказов используется `utils/faker_data.py`: случайными остаются имя, фамилия, адрес и телефон, а стабильными — метро, срок аренды, цвет и смещения даты доставки. Это делает данные реалистичнее без потери повторяемости.
-
----
-
-## Артефакты при падении
-
-При падении любого теста в Allure автоматически прикрепляются:
-- 📸 Скриншот браузера
-- 🔗 Текущий URL
-- 📄 HTML-код страницы

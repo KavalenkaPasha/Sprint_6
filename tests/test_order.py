@@ -50,32 +50,27 @@ class TestOrderFlow:
             allure.attach(repr(order_data), name="generated_order_data")
 
         with allure.step("Открыть главную страницу"):
-            main_page = MainPage(driver).open_main_page()
+            main_page = MainPage(driver)
+            main_page.open_main_page()
 
         with allure.step(f"Нажать кнопку «Заказать» — точка входа: {entry_point.value}"):
             order_page = main_page.click_order_button(entry_point)
 
         with allure.step("Заполнить Шаг 1: личные данные"):
-            (
-                order_page
-                .set_first_name(order_data.first_name)
-                .set_last_name(order_data.last_name)
-                .set_address(order_data.address)
-                .set_metro(order_data.metro)
-                .set_phone(order_data.phone)
-                .click_next()
-            )
+            order_page.set_first_name(order_data.first_name)
+            order_page.set_last_name(order_data.last_name)
+            order_page.set_address(order_data.address)
+            order_page.set_metro(order_data.metro)
+            order_page.set_phone(order_data.phone)
+            order_page.click_next()
 
         with allure.step("Заполнить Шаг 2: параметры аренды"):
-            (
-                order_page
-                .set_delivery_date(order_data.delivery_date)
-                .set_rental_period(order_data.rental_period)
-                .set_color(order_data.color)
-                .set_comment(order_data.comment)
-                .click_create_order()
-                .confirm_order()
-            )
+            order_page.set_delivery_date(order_data.delivery_date)
+            order_page.set_rental_period(order_data.rental_period)
+            order_page.set_color(order_data.color)
+            order_page.set_comment(order_data.comment)
+            order_page.click_create_order()
+            order_page.confirm_order()
 
         with allure.step("Проверить модальное окно успешного заказа"):
             success_header = order_page.get_success_header_text()
