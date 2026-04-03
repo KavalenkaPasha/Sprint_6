@@ -53,6 +53,7 @@ class OrderPage(BasePage):
     )
 
     @staticmethod
+    @allure.step("Получить локатор опции срока аренды: {value}")
     def rental_period_option(value: str) -> tuple[str, str]:
         return (
             By.XPATH,
@@ -60,6 +61,7 @@ class OrderPage(BasePage):
         )
 
     @staticmethod
+    @allure.step("Получить локатор станции метро: {value}")
     def metro_option(value: str) -> tuple[str, str]:
         return By.XPATH, (
             "//li[contains(@class,'select-search__row')]"
@@ -72,10 +74,12 @@ class OrderPage(BasePage):
         self.accept_cookies_if_present()
         return self.wait_until_loaded()
 
+    @allure.step("Дождаться загрузки первого шага заказа")
     def wait_until_loaded(self) -> OrderPage:
         self.wait_visible(self.STEP_ONE_HEADER)
         return self
 
+    @allure.step("Дождаться загрузки второго шага заказа")
     def wait_until_step_two_loaded(self) -> OrderPage:
         self.wait_visible(self.STEP_TWO_HEADER)
         return self
@@ -114,7 +118,6 @@ class OrderPage(BasePage):
     @allure.step("Указать дату доставки: {value}")
     def set_delivery_date(self, value: str) -> OrderPage:
         self.type_text(self.FIELD_DATE, value)
-        # Кликаем на заголовок формы, чтобы закрыть всплывающий календарь
         self.click(self.STEP_TWO_HEADER)
         return self
 
@@ -153,12 +156,15 @@ class OrderPage(BasePage):
         self.wait_visible(self.SUCCESS_MODAL)
         return self
 
+    @allure.step("Получить текст заголовка успешного заказа")
     def get_success_header_text(self) -> str:
         return self.get_text(self.SUCCESS_HEADER)
 
+    @allure.step("Получить текст модального окна успешного заказа")
     def get_success_modal_text(self) -> str:
         return self.get_text(self.SUCCESS_MODAL)
 
+    @allure.step("Получить номер заказа")
     def get_order_number(self) -> str:
         def _order_number_is_ready(driver):
             text = driver.find_element(*self.SUCCESS_ORDER_NUMBER).text
@@ -169,6 +175,7 @@ class OrderPage(BasePage):
             _order_number_is_ready
         )
 
+    @allure.step("Проверить видимость кнопки статуса заказа")
     def is_status_button_visible(self) -> bool:
         self.wait_visible(self.SUCCESS_TRACK_BUTTON)
         return True

@@ -34,6 +34,7 @@ class BasePage:
         self.wait = WebDriverWait(driver, self.DEFAULT_TIMEOUT)
 
     @staticmethod
+    @allure.step("Собрать полный URL для пути: {path}")
     def build_url(path: str = "") -> str:
         return f"{BasePage.BASE_URL}{path}"
 
@@ -42,22 +43,28 @@ class BasePage:
         self.driver.get(self.build_url(path))
         return self
 
+    @allure.step("Дождаться видимости элемента: {locator}")
     def wait_visible(self, locator: tuple[str, str], timeout: int | None = None) -> WebElement:
         return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
             EC.visibility_of_element_located(locator)
         )
 
+    @allure.step("Дождаться присутствия элемента: {locator}")
     def wait_present(self, locator: tuple[str, str], timeout: int | None = None) -> WebElement:
         return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
             EC.presence_of_element_located(locator)
         )
 
+    @allure.step("Дождаться кликабельности элемента: {locator}")
     def wait_clickable(self, locator: tuple[str, str], timeout: int | None = None) -> WebElement:
         return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
             EC.element_to_be_clickable(locator)
         )
 
-    def wait_for_all_present(self, locator: tuple[str, str], timeout: int | None = None) -> list[WebElement]:
+    @allure.step("Дождаться присутствия всех элементов: {locator}")
+    def wait_for_all_present(
+        self, locator: tuple[str, str], timeout: int | None = None
+    ) -> list[WebElement]:
         WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
             EC.presence_of_all_elements_located(locator)
         )
@@ -73,7 +80,9 @@ class BasePage:
         return element
 
     @allure.step("Кликнуть по элементу")
-    def click(self, locator: tuple[str, str], *, scroll: bool = False, timeout: int | None = None) -> WebElement:
+    def click(
+        self, locator: tuple[str, str], *, scroll: bool = False, timeout: int | None = None
+    ) -> WebElement:
         if scroll:
             self.scroll_to(locator)
         element = self.wait_clickable(locator, timeout)
@@ -100,25 +109,38 @@ class BasePage:
         element.send_keys(value)
         return element
 
+    @allure.step("Получить текст элемента: {locator}")
     def get_text(self, locator: tuple[str, str], timeout: int | None = None) -> str:
         return self.wait_visible(locator, timeout).text
 
+    @allure.step("Дождаться URL, содержащего: {value}")
     def wait_url_contains(self, value: str, timeout: int | None = None) -> bool:
-        return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(EC.url_contains(value))
+        return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
+            EC.url_contains(value)
+        )
 
+    @allure.step("Дождаться URL: {value}")
     def wait_url_to_be(self, value: str, timeout: int | None = None) -> bool:
-        return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(EC.url_to_be(value))
+        return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
+            EC.url_to_be(value)
+        )
 
+    @allure.step("Дождаться непустого заголовка страницы")
     def wait_title_not_empty(self, timeout: int | None = None) -> bool:
-        return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(lambda d: d.title.strip() != "")
+        return WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
+            lambda d: d.title.strip() != ""
+        )
 
+    @allure.step("Получить текущий URL")
     def current_url(self) -> str:
         return self.driver.current_url
 
+    @allure.step("Получить текущий заголовок страницы")
     def current_title(self) -> str:
         return self.driver.title
 
     @staticmethod
+    @allure.step("Нормализовать текст")
     def normalize_text(value: str) -> str:
         return " ".join(value.split())
 
@@ -144,6 +166,7 @@ class BasePage:
         self.click(self.YANDEX_LOGO)
         return self
 
+    @allure.step("Дождаться открытия новой вкладки")
     def wait_for_new_window(self, existing_handles: Iterable[str], timeout: int | None = None) -> str:
         existing_handles = list(existing_handles)
         WebDriverWait(self.driver, timeout or self.DEFAULT_TIMEOUT).until(
@@ -164,6 +187,7 @@ class BasePage:
         self.driver.switch_to.window(target_handle)
         return self
 
+    @allure.step("Извлечь номер заказа из текста")
     def extract_order_number(self, value: str) -> str:
         normalized_value = self.normalize_text(value)
         match = self.ORDER_NUMBER_PATTERN.search(normalized_value)
@@ -173,6 +197,7 @@ class BasePage:
             )
         return match.group(1)
 
+    @allure.step("Приложить скриншот к отчёту")
     def attach_screenshot(self, name: str = "screenshot") -> None:
         allure.attach(
             self.driver.get_screenshot_as_png(),
@@ -180,5 +205,6 @@ class BasePage:
             attachment_type=AttachmentType.PNG,
         )
 
+    @allure.step("Приложить текст к отчёту: {name}")
     def attach_text(self, name: str, value: str) -> None:
         allure.attach(value, name=name, attachment_type=AttachmentType.TEXT)

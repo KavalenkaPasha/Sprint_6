@@ -3,7 +3,7 @@ import pytest
 
 from models.order_data import OrderEntryPoint
 from pages.main_page import MainPage
-from tests.data import ORDER_ENTRY_POINTS, ORDER_CASES
+from utils.test_data import ORDER_ENTRY_POINTS, ORDER_CASES
 from utils.faker_data import generate_order_data
 
 

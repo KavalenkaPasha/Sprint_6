@@ -3,7 +3,7 @@ import pytest
 
 from pages.main_page import MainPage
 from pages.base_page import BasePage
-from tests.data import FAQ_DATA
+from utils.test_data import FAQ_DATA
 
 
 @allure.epic("Яндекс.Самокат")

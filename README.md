@@ -1,44 +1,36 @@
-# Sprint_6 — Автотесты для Яндекс.Самокат
+# Sprint_6 — автотесты для Яндекс.Самокат
 
-Автотесты на `pytest + Selenium + Firefox` для сервиса "Яндекс.Самокат"
-(https://qa-scooter.praktikum-services.ru/).
-
----
+Автотесты на `pytest + Selenium + Firefox` для сервиса «Яндекс.Самокат»:
+https://qa-scooter.praktikum-services.ru/
 
 ## Что покрыто тестами
 
-| Файл теста | Что тестируется |
-|---|---|
-| `tests/test_faq.py` | 8 вопросов в блоке «Вопросы о важном» — каждый отдельным тестом |
-| `tests/test_order.py` | Позитивный флоу заказа: 2 Faker-сценария × 2 точки входа = 4 теста |
-| `tests/test_navigation.py` | Логотип Самоката → главная; Логотип Яндекса → Дзен в новой вкладке |
-
----
+- `tests/test_faq.py` — блок «Вопросы о важном», отдельный тест на каждый вопрос через параметризацию.
+- `tests/test_order.py` — позитивный сценарий оформления заказа с двумя наборами данных и двумя точками входа.
+- `tests/test_navigation.py` — переход по логотипу «Самоката» на главную страницу и открытие Дзена по логотипу Яндекса.
 
 ## Структура проекта
 
-```
+```text
 Sprint_6/
 ├── models/
-│   └── order_data.py       # dataclass OrderData, enum OrderEntryPoint
+│   └── order_data.py
 ├── pages/
-│   ├── base_page.py        # Базовые методы: клики, ожидания, работа с окнами
-│   ├── main_page.py        # Главная страница + FAQ
-│   └── order_page.py       # Форма заказа и модальное окно успеха
+│   ├── base_page.py
+│   ├── main_page.py
+│   └── order_page.py
 ├── tests/
-│   ├── conftest.py         # Фикстуры: driver, артефакты при падении
-│   ├── data.py             # Тестовые данные FAQ и точки входа заказа
-│   ├── test_faq.py         # Тесты FAQ
-│   ├── test_order.py       # Тесты заказа
-│   └── test_navigation.py  # Тесты навигации
+│   ├── conftest.py
+│   ├── test_faq.py
+│   ├── test_order.py
+│   └── test_navigation.py
 ├── utils/
-│   └── faker_data.py       # Генерация заказов через Faker
+│   ├── faker_data.py
+│   └── test_data.py
 ├── pytest.ini
 ├── requirements.txt
 └── README.md
 ```
-
----
 
 ## Установка и запуск
 
@@ -46,7 +38,8 @@ Sprint_6/
 
 ```bash
 python -m venv venv
-# venv\Scripts\activate         # Windows
+# source venv/bin/activate
+# или venv\Scripts\activate для Windows
 ```
 
 ### 2. Установить зависимости
@@ -58,26 +51,18 @@ pip install -r requirements.txt
 ### 3. Запустить тесты
 
 ```bash
-# Обычный запуск (откроется браузер)
 pytest
-
-# Запуск в фоновом (headless) режиме — без GUI
-pytest --headless
-
-# Или через переменную окружения
-HEADLESS=1 pytest
 ```
 
-### 4. Сгенерировать и открыть Allure-отчёт
+### 4. Сгенерировать Allure-отчёт
 
 ```bash
-# Запустить тесты (результаты сохраняются в allure-results/)
-pytest
-
-# Открыть отчёт в браузере
 allure serve allure-results
+```
 
-# ИЛИ собрать статический отчёт
+или:
+
+```bash
 allure generate allure-results -o allure-report --clean
 allure open allure-report
 ```

@@ -18,10 +18,12 @@ class MainPage(BasePage):
     )
 
     @staticmethod
+    @allure.step("Получить локатор вопроса FAQ с индексом {index}")
     def faq_question(index: int) -> tuple[str, str]:
         return By.ID, f"accordion__heading-{index}"
 
     @staticmethod
+    @allure.step("Получить локатор ответа FAQ с индексом {index}")
     def faq_answer(index: int) -> tuple[str, str]:
         return By.ID, f"accordion__panel-{index}"
 
@@ -55,6 +57,7 @@ class MainPage(BasePage):
     def get_faq_answer_text(self, index: int) -> str:
         return self.get_text(self.faq_answer(index))
 
+    @allure.step("Проверить, что главная страница загружена")
     def is_loaded(self) -> bool:
         self.wait_visible(self.ORDER_BUTTON_TOP)
         return True
